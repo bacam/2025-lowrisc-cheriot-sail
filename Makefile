@@ -317,6 +317,10 @@ c_emulator/cheri_riscv_rvfi_%: generated_definitions/c/riscv_rvfi_model_%.c $(SA
 	mkdir -p c_emulator
 	$(CC) -g $(C_WARNINGS) $(C_FLAGS) $< -DRVFI_DII $(SAIL_RISCV_DIR)/c_emulator/riscv_sim.c $(C_SRCS) $(SAIL_LIB_DIR)/*.c $(C_LIBS) -o $@
 
+generated_definitions/riscv_model_%.ir: $(SAIL_SRCS) src/isla.sail src/no_init_regs.sail Makefile
+	mkdir -p generated_definitions/
+	isla-sail $(SAIL_FLAGS) --mono-rewrites --memo-z3 $(SAIL_SRCS) src/isla.sail -splice src/no_init_regs.sail -o $(basename $@)
+
 latex: $(SAIL_SRCS) Makefile
 	$(SAIL) -latex -latex_prefix sailRISCV -o sail_latex_riscv $(SAIL_SRCS) properties/proplib.sail properties/props.sail properties/props_setboundsrounddown.sail
 
@@ -449,6 +453,7 @@ clean:
 	-rm -rf generated_definitions/ocaml/* generated_definitions/c/* generated_definitions/latex/* sail_riscv_latex
 	-rm -rf generated_definitions/lem/* generated_definitions/isabelle/* generated_definitions/hol4/* generated_definitions/coq/*
 	-rm -rf generated_definitions/lem-for-rmem/*
+	-rm -rf generated_definitions/*.ir
 	-make -C $(SOFTFLOAT_LIBDIR) clean
 	-make -C properties clean
 	-rm -f $(addprefix c_emulator/cheri_riscv_sim_RV,32 64)  $(addprefix c_emulator/cheri_riscv_rvfi_RV, 32 64) c_emulator/cheriot_sim

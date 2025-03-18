@@ -60,6 +60,8 @@
 /*  SUCH DAMAGE.                                                                         */
 /*=======================================================================================*/
 
+$include <mono_rewrites.sail>
+
 /* CHERI specific helpers */
 
 val MEMr_tag = "read_tag_bool"  : bits(64) -> bool
