@@ -46,3 +46,31 @@ function isla_footprint(opcode) = {
     _ => false
   }
 }
+
+function isla_testgen_init() -> unit = {
+  PC = 0x80000000;
+  init_model();
+}
+
+function isla_testgen_step() -> unit = {
+  let f : FetchResult = ext_fetch_hook(fetch());
+  let r : Retired = match f {
+    F_Ext_Error(e)   => RETIRE_FAIL,
+    F_Error(e, addr) => RETIRE_FAIL,
+    F_RVC(h) => {
+      let ast = ext_decode_compressed(h);
+      nextPC = PC + 2;
+      execute(ast)
+    },
+    F_Base(w) => {
+      let ast = ext_decode(w);
+      nextPC = PC + 4;
+      execute(ast)
+    }
+  };
+  match r {
+    RETIRE_SUCCESS => (),
+    RETIRE_FAIL => assert(false),
+  };
+  tick_pc();
+} 
