@@ -74,3 +74,15 @@ function isla_testgen_step() -> unit = {
   };
   tick_pc();
 } 
+
+$property
+function isla_cap_encoding(c_tag : bool, c_bits : bits(64)) -> (option ((bool, Capability, CapAddrBits, CapLenBits))) = {
+  let c = capBitsToCapability(c_tag, c_bits);
+  let (base, top) = getCapBoundsBits(c);
+  if ((unsigned(c.E) <= 14 | unsigned(c.E) == 24) &
+   not_bool(c.tag) | (
+     (unsigned(top) <= unsigned(0x100000000)) &
+     (not_bool(unsigned(c.E) == 24) | base[8] == bitzero) &
+     (not_bool(unsigned(c.E) <= 14) | (unsigned(base) <= unsigned(top)))
+   )) then None() else Some(c_tag, c, base, top)
+}
