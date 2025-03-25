@@ -53,6 +53,9 @@ function isla_testgen_init() -> unit = {
 }
 
 function isla_testgen_step() -> unit = {
+  // nextPCC is usually only updated when the non-address parts of PCC might change.  The test
+  // generator may have chosen a new PCC, so initialise nextPCC here.
+  nextPCC = PCC;
   let f : FetchResult = ext_fetch_hook(fetch());
   let r : Retired = match f {
     F_Ext_Error(e)   => RETIRE_FAIL,
@@ -73,6 +76,10 @@ function isla_testgen_step() -> unit = {
     RETIRE_FAIL => assert(false),
   };
   tick_pc();
+  // Keep the address of the PCC up to date
+  let (ok, newpcc) = setCapAddr(PCC, PC);
+  assert(ok);
+  PCC = newpcc;
 } 
 
 $property
