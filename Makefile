@@ -247,7 +247,7 @@ cgen: $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
 
 generated_definitions/ocaml/%/riscv.ml: $(SAIL_SRCS) Makefile
 	mkdir -p generated_definitions/ocaml/$*
-	$(SAIL) $(SAIL_FLAGS) -ocaml -ocaml-nobuild -ocaml_build_dir generated_definitions/ocaml/$* -o riscv $(SAIL_SRCS)
+	$(SAIL) $(SAIL_FLAGS) -ocaml -ocaml-nobuild -ocaml_build_dir generated_definitions/ocaml/$* -ocaml_generators ast -o riscv $(SAIL_SRCS)
 
 ocaml_emulator/_sbuild/%/riscv_ocaml_sim.native: generated_definitions/ocaml/%/riscv.ml $(PLATFORM_OCAML_SRCS) Makefile
 	mkdir -p ocaml_emulator/_sbuild/$*
