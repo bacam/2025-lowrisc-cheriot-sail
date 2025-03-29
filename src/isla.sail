@@ -47,6 +47,23 @@ function isla_footprint(opcode) = {
   }
 }
 
+function isla_init_cap_of_bits(c_tag : bool, c_bits : CapBits) -> Capability = {
+  let c = capBitsToCapability(c_tag, c_bits);
+
+  // Assert that the capability has some properties necessary for
+  // derivability (ported from the formal proof work)
+  let (base, top) = getCapBoundsBits(c);
+  assert(
+    (unsigned(c.E) <= 14 | unsigned(c.E) == 24) &
+    not_bool(c.tag) | (
+      (unsigned(top) <= unsigned(0x100000000)) &
+      (not_bool(unsigned(c.E) == 24) | base[8] == bitzero) &
+      (not_bool(unsigned(c.E) <= 14) | (unsigned(base) <= unsigned(top)))
+    )
+  );
+  c
+}
+
 function isla_testgen_init() -> unit = {
   PC = 0x80000000;
   init_model();
