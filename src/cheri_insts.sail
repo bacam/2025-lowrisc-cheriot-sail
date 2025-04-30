@@ -117,6 +117,11 @@ function clause execute(CJAL(imm, cd)) = {
     assert(success, "Link cap should always be representable.");
     assert(not (isCapSealed(linkCap)), "Link cap should always be unsealed");
 
+    // Revert to earlier behaviour for now
+    let sentry_type = if mstatus.MIE() == 0b1 then otype_sentry_bie else otype_sentry_bid;
+    C(cd) = sealCap(linkCap, to_bits(cap_otype_width, sentry_type));
+
+/*
     if cd == ra then {
       /* When writing to ra, generate a sealed return capability. */
       let sentry_type = if mstatus.MIE() == 0b1 then otype_sentry_bie else otype_sentry_bid;
@@ -125,6 +130,7 @@ function clause execute(CJAL(imm, cd)) = {
       /* Generate an unsealed return capability. */
       C(cd) = linkCap;
     };
+*/
 
     nextPC = newPC;
     RETIRE_SUCCESS
@@ -185,6 +191,11 @@ function clause execute(CJALR(imm, cs1, cd)) = {
     assert(success, "Link cap should always be representable.");
     assert(not (isCapSealed(linkCap)), "Link cap should always be unsealed");
 
+    // Revert to earlier behaviour for now
+    let sentry_type = if mstatus.MIE() == 0b1 then otype_sentry_bie else otype_sentry_bid;
+    C(cd) = sealCap(linkCap, to_bits(cap_otype_width, sentry_type));
+
+/*
     if cd == ra then {
       /*
        * When writing to ra, generate a sealed return capability.  We can get
@@ -199,6 +210,7 @@ function clause execute(CJALR(imm, cs1, cd)) = {
        */
       C(cd) = linkCap;
     };
+*/
 
     nextPC = newPC;
     nextPCC = unsealCap(cs1_val);
