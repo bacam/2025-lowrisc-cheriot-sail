@@ -85,12 +85,13 @@ function mem_read_cap (addr, aq, rl, res) = {
 val mem_read_cap_revoked : xlenbits -> bool
 function mem_read_cap_revoked (addr) = {
   let ram_base = plat_ram_base();
+  let ram_size = plat_ram_size();
   /* XXX we put the revocation bits in the existing DRAM region for now so we
     don't have to create a new memory region in riscv_platform.sail. This only
     works if software doesn't otherwise use this memory which is likely because
     the MCU has much less than the Sail default of 1GiB. */
-  let revocation_bits_base = 0x83000000;
-  if (addr <_u ram_base) then {
+  let revocation_bits_base = 0x30000000;
+  if (addr <_u ram_base | addr >=_u ram_base + ram_size) then {
     /* reads outside the revokable region are never revoked */
     false
   } else {
