@@ -240,7 +240,7 @@ check: $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail Makefile
 	$(SAIL) $(SAIL_FLAGS) $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
 
 interpret: $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
-	$(SAIL) -i $(SAIL_FLAGS) $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
+	$(SAIL) -i $(SAIL_FLAGS) $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail src/isla.sail
 
 cgen: $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
 	$(SAIL) -cgen $(SAIL_FLAGS) $(SAIL_SRCS) $(SAIL_RISCV_MODEL_DIR)/main.sail
@@ -319,7 +319,7 @@ c_emulator/cheri_riscv_rvfi_%: generated_definitions/c/riscv_rvfi_model_%.c $(SA
 
 generated_definitions/riscv_model_%.ir: $(SAIL_SRCS) src/isla.sail src/isla-splice.sail Makefile
 	mkdir -p generated_definitions/
-	isla-sail $(SAIL_FLAGS) --mono-rewrites --memo-z3 --isla-preserve isla_testgen_init --isla-preserve isla_init_cap_of_bits --isla-preserve isla_testgen_step $(SAIL_SRCS) src/isla.sail -splice src/isla-splice.sail -o $(basename $@)
+	isla-sail $(SAIL_FLAGS) --mono-rewrites --memo-z3 --isla-preserve isla_testgen_init --isla-preserve isla_init_cap_property --isla-preserve isla_testgen_step $(SAIL_SRCS) src/isla.sail -splice src/isla-splice.sail -o $(basename $@)
 
 latex: $(SAIL_SRCS) Makefile
 	$(SAIL) -latex -latex_prefix sailRISCV -o sail_latex_riscv $(SAIL_SRCS) properties/proplib.sail properties/props.sail properties/props_setboundsrounddown.sail

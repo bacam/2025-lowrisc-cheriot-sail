@@ -47,25 +47,32 @@ function isla_footprint(opcode) = {
   }
 }
 
-function isla_init_cap_of_bits(c_tag : bool, c_bits : CapBits) -> Capability = {
-  let c = capBitsToCapability(c_tag, c_bits);
-
+function isla_init_cap_property(c : Capability) -> bool = {
   // Assert that the capability has some properties necessary for
   // derivability (ported from the formal proof work)
   let (base, top) = getCapBoundsBits(c);
-  assert(
+/*
+  let dti : bool =
     (unsigned(c.E) <= 14 | unsigned(c.E) == 24) &
-    not_bool(c.tag) | (
+    (not_bool(c.tag) | (
       (unsigned(top) <= unsigned(0x100000000)) &
-      (not_bool(unsigned(c.E) == 24) | base[8] == bitzero) &
+      (not_bool(unsigned(c.E) == 24) | c.B[8] == bitzero) &
       (not_bool(unsigned(c.E) <= 14) | (unsigned(base) <= unsigned(top)))
-    )
-  );
-  c
+    ));
+*/
+
+  let (_, c') = setCapBounds(max_bounds_cap, base, top[31..0]-base); 
+  not_bool(c.tag) | c.reserved == 0b0 &
+                    ((unsigned(base) + unsigned(top[31..0] - base) <= unsigned(0x100000000) &
+                      unsigned(base) <= unsigned(top) &
+                      unsigned(top) <= unsigned(0x100000000) &
+                      c.E == c'.E & c.T == c'.T & c.B == c'.B) |
+                     (c.E == 0b11000 & c.B == 0b000000000 & c.T == 0b100000000))
 }
 
 function isla_testgen_init() -> unit = {
   PC = 0x80000000;
+  mstatus[MIE] = 0b0;
   init_model();
 }
 
@@ -96,6 +103,12 @@ function isla_testgen_step() -> unit = {
   // Keep the address of the PCC up to date
   let (ok, newpcc) = setCapAddr(PCC, PC);
   assert(ok);
+
+  // Make sure that the new PCC is good enough for the test exit instruction
+  assert(not_bool(isCapSealed(newpcc)));
+  assert(newpcc.permit_execute);
+  assert(inCapBounds(newpcc, newpcc.address, 2));
+
   PCC = newpcc;
 } 
 
